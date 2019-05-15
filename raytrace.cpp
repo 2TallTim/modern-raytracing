@@ -8,10 +8,23 @@
 
 typedef vec3<> vec;
 
+std::random_device dev;
+std::mt19937 rng(dev());
+std::uniform_real_distribution<double> dist(0,1);
+
+vec random_in_unit_sphere(){
+    vec p;
+    do {
+        p = 2.0 * vec(dist(rng),dist(rng),dist(rng)) - vec(1,1,1);
+    } while(p.squared_length() >= 1.0);
+    return p;
+}
+
 vec color(const ray& r, hitable::Ptr world) {
     hit_record rec;
-    if(world->hit(r,0.0,MAXFLOAT,rec)){
-        return 0.5 * (rec.normal + vec(1,1,1));
+    if(world->hit(r,0.001,MAXFLOAT,rec)){
+        vec target = rec.p + rec.normal + random_in_unit_sphere();
+        return 0.5 * color(ray(rec.p,target-rec.p), world);
     } else {
         vec unit_direction = unit_vector(r.direction());
         double t = 0.5 *(unit_direction.y() + 1.0);
@@ -24,9 +37,7 @@ int main() {
     const int ny = 100;
     const int ns = 100;
 
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_real_distribution<double> dist(0,1);
+    
 
     std::cout << "P3" << std::endl;
     std::cout << nx << " " << ny << std::endl;
@@ -55,6 +66,7 @@ int main() {
                 col+= color(r,world); 
             }
             col /= (double)ns;
+            col = vec(sqrt(col.r()),sqrt(col.g()),sqrt(col.b()));
             int ir = int(255.99*col.r());
             int ig = int(255.99*col.g());
             int ib = int(255.99*col.b());
