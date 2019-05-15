@@ -3,13 +3,13 @@ CFLAGS = --std=c++14 -Wall
 
 all: raytrace
 
-OFILES=raytrace.o vec3.o
+OFILES=vec3.o ray.o raytrace.o
 
 raytrace: $(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) -o $@
 	echo $@
 
-%.o: %.cpp
+%.o: %.cpp %.hpp
 	$(CC) -c $(CFLAGS) $<
 test:
 	./raytrace > test.ppm
