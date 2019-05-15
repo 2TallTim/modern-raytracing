@@ -7,11 +7,11 @@ OFILES=vec3.o ray.o raytrace.o
 
 raytrace: $(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) -o $@
-	echo $@
 
 %.o: %.cpp %.hpp
 	$(CC) -c $(CFLAGS) $<
-test:
+
+test: raytrace
 	./raytrace > test.ppm
 
 clean:
