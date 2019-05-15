@@ -5,8 +5,8 @@
 
 struct hit_record{
     double t;
-    vec3<> p;
-    vec3<> normal;
+    vec3 p;
+    vec3 normal;
 };
 
 class hitable {

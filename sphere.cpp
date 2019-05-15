@@ -1,7 +1,7 @@
 #include "sphere.hpp"
 
 bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
-    vec3<> oc = r.origin() - center;
+    vec3 oc = r.origin() - center;
     double a = dot(r.direction(), r.direction());
     double b = dot(oc,r.direction());
     double c = dot(oc,oc) - radius*radius;
