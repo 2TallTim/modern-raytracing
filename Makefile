@@ -1,9 +1,9 @@
 CC=c++
-CFLAGS = --std=c++14 -Wall
+CFLAGS = --std=c++14 -Wall -g
 
 all: raytrace
 
-OFILES=vec3.o ray.o raytrace.o sphere.o hitable.o hitable_list.o rng.o
+OFILES=sphere.o hitable_list.o rng.o raytrace.o
 
 raytrace: $(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) -o $@
