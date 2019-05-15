@@ -3,6 +3,8 @@
 #include "ray.hpp"
 #include "sphere.hpp"
 #include "hitable_list.hpp"
+#include "camera.hpp"
+#include <random>
 
 typedef vec3<> vec;
 
@@ -18,10 +20,14 @@ vec color(const ray& r, hitable::Ptr world) {
 }
 
 int main() {
+    const int nx = 200;
+    const int ny = 100;
+    const int ns = 100;
 
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_real_distribution<double> dist(0,1);
 
-    int nx = 200;
-    int ny = 100;
     std::cout << "P3" << std::endl;
     std::cout << nx << " " << ny << std::endl;
     std::cout << "255" << std::endl;
@@ -35,15 +41,20 @@ int main() {
     world->add(std::make_shared<sphere>(vec(0,0,-1), 0.5) );
     world->add(std::make_shared<sphere>(vec(0,-100.5,-1), 100));
 
+    camera cam(origin,vec(0,0,-1),vec(0,1,0),4,2);
 
     for(int j = ny-1; j >= 0; j--){
         for(int i = 0; i < nx; i++){
-            double u = (double)i/nx;
-            double v = (double)j/ny;
+            vec col(0,0,0);
 
-            ray r(origin, lower_left_corner + u*horizontal+v*vertical);
-            vec col = color(r,world);
+            for (int s = 0; s < ns; s++){
+                double u = (double)(i+dist(rng))/nx;
+                double v = (double)(j+dist(rng))/ny;
+                ray r = cam.get_ray(u,v);
 
+                col+= color(r,world); 
+            }
+            col /= (double)ns;
             int ir = int(255.99*col.r());
             int ig = int(255.99*col.g());
             int ib = int(255.99*col.b());
