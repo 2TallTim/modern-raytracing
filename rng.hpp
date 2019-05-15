@@ -17,4 +17,5 @@ class rng {
     static rng* inst();
     static double gen01();
     static vec3 random_in_unit_sphere();
+    static vec3 random_in_unit_disk();
 };

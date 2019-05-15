@@ -37,10 +37,12 @@ int main() {
     std::cout << nx << " " << ny << std::endl;
     std::cout << "255" << std::endl;
 
-    vec3 lower_left_corner(-2, -1, -1);
     vec3 horizontal(4,0,0);
     vec3 vertical(0,2,0);
-    vec3 origin(0,0,0);
+    vec3 origin(3,3,2);
+    vec3 aim(0,0,-1);
+    double dist_to_focus = (origin-aim).length();
+    double aperture = 2.0;
 
     std::shared_ptr<hitable_list> world = std::make_shared<hitable_list>();
 
@@ -60,7 +62,7 @@ int main() {
     sp = std::make_shared<sphere>(vec3(-1,0,-1), 0.5, mat);
     world->add(sp);
     
-    camera cam(origin, vec3(0,0,-1), vec3(0,1,0), 4, 2);
+    camera cam(origin, aim, vec3(0,1,0), 20,(double)nx/ny,aperture, dist_to_focus);
 
     for(int j = ny-1; j >= 0; j--){
         for(int i = 0; i < nx; i++){
