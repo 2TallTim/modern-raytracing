@@ -1,5 +1,5 @@
 CC=c++
-CFLAGS = --std=c++14 -Wall -g
+CFLAGS = --std=c++14 -Wall -O3 -lpthread
 
 all: raytrace
 
@@ -12,7 +12,7 @@ raytrace: $(OFILES)
 	$(CC) -c $(CFLAGS) $<
 
 test: raytrace
-	./raytrace > test.ppm
+	./raytrace test.ppm
 
 clean:
 	rm -rf *.o 
