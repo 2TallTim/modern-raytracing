@@ -4,6 +4,7 @@
 
 class ray{
   public:
+    ray(){}
     ray(const vec3& a, const vec3& b) : O(a), D(b) {}
     vec3 origin() const { return O; }
     vec3 direction() const { return D; }
