@@ -6,6 +6,7 @@
 template <typename T=double>
 class vec3 {
 public:
+    vec3() : e{0,0,0} {}
     vec3(T e0, T e1, T e2) : e{e0,e1,e2} {}
 
     inline T x() const { return e[0]; }
