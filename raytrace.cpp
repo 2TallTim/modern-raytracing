@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     const int ny = 300;
     const int ns = 100;
     const int nobj = 500;
-    
+    const double tgt_var = 0.05;
 
 
     std::shared_ptr<hitable_list> world = std::make_shared<hitable_list>();
@@ -85,36 +85,63 @@ int main(int argc, char** argv) {
 
     std::mutex result_mutex;
     std::vector<std::string> results(ny);
-
+    std::vector<std::string> smpmap(ny);
     std::atomic_int nextrow(-1);
 
     auto renderRow = [&]()->void{
         int j = ++nextrow;
         while(j < ny){
             std::stringstream tmpresults;
+            std::stringstream smpcntresults;
             tmpresults << "# ROW " << j << std::endl;
+            int t_samples = 0;
             for(int i = 0; i < nx; i++){
-                vec3 col(0,0,0);
+                vec3 col, vr;
 
-                for (int s = 0; s < ns; s++){
+                //Intialize variance tracking
+                int s = 0;
+                for (s = 0; s < ns; s++){
                     double u = (double)(i+rng::gen01())/nx;
                     double v = (double)(j+rng::gen01())/ny;
                     ray r = cam.get_ray(u, v);
+                    vec3 sample = color(r, world);
 
-                    col+= color(r, world); 
+                    t_samples++;
+
+                    col += sample;
+
+                    vr += vec3(sample.r()*sample.r(),
+                               sample.g()*sample.g(),
+                               sample.b()*sample.b());
+
+                    if(s > sqrt((float)ns)){
+                        vec3 musquared_s((col.r()*col.r())/s,
+                                         (col.g()*col.g())/s,
+                                         (col.b()*col.b())/s );
+                        vec3 variance = ((double)s/((s-1) * (double)s)) * (vr-musquared_s);
+                        variance = vec3(variance.r()*variance.r(),
+                                        variance.g()*variance.g(),
+                                        variance.b()*variance.b());
+                        if((variance.r() < tgt_var) && 
+                           (variance.g() < tgt_var) && 
+                           (variance.b() < tgt_var)) break;
                 }
-                col /= (double)ns;
+                }
+                col = col/(s+1);
                 col = vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
                 int ir = int(255.99*col.r());
                 int ig = int(255.99*col.g());
                 int ib = int(255.99*col.b());
 
                 tmpresults << ir << " " << ig << " " << ib << std::endl;
+                int nsgv = int((double)(255.9*s)/ns);
+                smpcntresults << nsgv << " " << nsgv << " " << nsgv << std::endl;
             }
             std::lock_guard<std::mutex> lock(result_mutex);
             results[j] = tmpresults.str();
+            smpmap[j] = smpcntresults.str();
             j = ++nextrow;
-            std::cout << j << " / " << ny << std::endl;
+            std::cout << j << " / " << ny << " Avg samples in row: " << (double)t_samples/nx <<std::endl;
         }
     };
     std::vector<std::thread> threads;
@@ -131,7 +158,7 @@ int main(int argc, char** argv) {
     header << "255" << std::endl;
     
     results.push_back(header.str());
-
+    smpmap.push_back(header.str());
     if(argc == 1){
         for(auto iter = results.rbegin(); iter != results.rend(); iter++){
             std::cout << *iter;
@@ -141,5 +168,9 @@ int main(int argc, char** argv) {
         for(auto iter = results.rbegin(); iter != results.rend(); iter++){
             out << *iter;
         }
+    }
+    std::ofstream smpout("./samples.ppm", std::ios::out);
+    for(auto iter = smpmap.rbegin(); iter != smpmap.rend(); iter++){
+        smpout << *iter;
     }
 }

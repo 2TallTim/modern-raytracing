@@ -11,7 +11,7 @@ private:
     vec3 vertical;
     vec3 u,v,w;
 public:
-    ray get_ray(float s, float t){
+    ray get_ray(double s, double t){
         vec3 rd = lens_radius*rng::random_in_unit_disk();
         vec3 offset = u*rd.x() + v * rd.y();
         return ray(origin+offset, aim+((s-0.5)*horizontal + (t-0.5)*vertical) - origin - offset);

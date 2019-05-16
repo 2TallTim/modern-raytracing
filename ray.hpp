@@ -9,7 +9,7 @@ class ray{
     vec3 origin() const { return O; }
     vec3 direction() const { return D; }
     vec3 point_at_parameter(double t) const { return O + t*D; }
-    static inline bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
+    static inline bool refract(const vec3& v, const vec3& n, double ni_over_nt, vec3& refracted) {
         vec3 uv = unit_vector(v);
         double dt = dot(uv,n);
         double discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);

@@ -32,7 +32,7 @@ class lambert : public material {
 class metal : public material {
   private:
     vec3 albedo;
-    float fuzz;
+    double fuzz;
   public:
     metal(const vec3& a, double f) : albedo(a), fuzz(f) {}
     virtual bool scatter(const ray& r_in,
