@@ -3,7 +3,7 @@ CFLAGS = --std=c++14 -Wall -O3 -lpthread
 
 all: raytrace
 
-OFILES=sphere.o hitable_list.o rng.o raytrace.o
+OFILES=sphere.o hitable_list.o rng.o raytrace.o bvh.o
 
 raytrace: $(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) -o $@

@@ -12,6 +12,7 @@
 #include "camera.hpp"
 #include "rng.hpp"
 #include "material.hpp"
+#include "bvh.hpp"
 
 vec3 color(const ray& r, hitable::Ptr world, int depth=0) {
     hit_record rec;
@@ -33,12 +34,12 @@ vec3 color(const ray& r, hitable::Ptr world, int depth=0) {
 int main(int argc, char** argv) {
     const int nx = 600;
     const int ny = 300;
-    const int ns = 100;
+    const int ns = 2048;
     const int nobj = 500;
-    const double tgt_var = 0.05;
+    const double tgt_var = 0.0001;
 
 
-    std::shared_ptr<hitable_list> world = std::make_shared<hitable_list>();
+    std::vector<hitable::Ptr> oblist;
 
     for(int a = -11; a<11; a++){
         for(int b = -11; b<11; b++){
@@ -54,32 +55,33 @@ int main(int argc, char** argv) {
                     mat = std::make_shared<dielectric>(1.5);
                 }
                 hitable::Ptr sp = std::make_shared<sphere>(center, 0.2, mat);
-                world->add(sp);
+                oblist.push_back(sp);
             }
         }
-        
     }
 
     material::Ptr mat = std::make_shared<lambert>(vec3(0.5,0.5,0.5));
     hitable::Ptr sp = std::make_shared<sphere>(vec3(0,-1000,0), 1000, mat);
-    world->add(sp);
+    oblist.push_back(sp);
 
     mat = std::make_shared<dielectric>(1.5);
     sp = std::make_shared<sphere>(vec3(0,1,0), 1.0, mat);
-    world->add(sp);
+    oblist.push_back(sp);
     
     mat = std::make_shared<lambert>(vec3(0.4,0.2,0.1));
     sp = std::make_shared<sphere>(vec3(-4, 1, 0), 1.0, mat);
-    world->add(sp);
+    oblist.push_back(sp);
     
     mat = std::make_shared<metal>(vec3(0.7,0.6,0.5), 0.0);
     sp = std::make_shared<sphere>(vec3(4,1,0), 1.0, mat);
-    world->add(sp);
+    oblist.push_back(sp);
+
+    auto world = std::make_shared<bvh_node>(oblist.begin(),oblist.end());
 
     vec3 origin(12,1,3);
     vec3 aim(0,1,0);
     double dist_to_focus = (origin-aim).length();
-    double aperture = 0.1;
+    double aperture = 0.03;
 
     camera cam(origin, aim, vec3(0,1,0), 30,(double)nx/ny,aperture, dist_to_focus);
 
@@ -134,7 +136,7 @@ int main(int argc, char** argv) {
                 int ib = int(255.99*col.b());
 
                 tmpresults << ir << " " << ig << " " << ib << std::endl;
-                int nsgv = int((double)(255.9*s)/ns);
+                int nsgv = int((double)255.99*((2*log(s)/log(ns)) - 1));
                 smpcntresults << nsgv << " " << nsgv << " " << nsgv << std::endl;
             }
             std::lock_guard<std::mutex> lock(result_mutex);

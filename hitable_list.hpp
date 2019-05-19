@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hitable.hpp"
-#include <list>
+#include <vector>
 
 class hitable_list: public hitable {
   public:
@@ -10,7 +10,8 @@ class hitable_list: public hitable {
                      double t_min,
                      double t_max, 
                      hit_record& rec) const;
-    void add(const hitable::Ptr& p);
+    virtual bool bounding_box(aabb&);
+    void add(const hitable::Ptr& p);    
   private:
-    std::list<hitable::Ptr> list;
+    std::vector<hitable::Ptr> list;
 };
