@@ -10,6 +10,7 @@ class material{
                          const hit_record& rec,
                          vec3& attenuation,
                          ray& scattered) const = 0;
+    virtual vec3 emitted() const = 0;
 };
 
 class lambert : public material {
@@ -26,6 +27,7 @@ class lambert : public material {
         attenuation = albedo;
         return true;
     }
+    virtual vec3 emitted() const { return vec3(0,0,0); }
 };
 
 
@@ -44,6 +46,7 @@ class metal : public material {
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
+    virtual vec3 emitted() const { return vec3(0,0,0); }
 };
 
 
@@ -86,4 +89,14 @@ class dielectric : public material {
         
         return true;
     }
+    virtual vec3 emitted() const { return vec3(0,0,0); }
+};
+
+class diffuse_light : public material {
+    private:
+    vec3 emit;
+    public:
+    diffuse_light(vec3 col) : emit(col) {}
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation,ray& scattered) const { return false; }
+    virtual vec3 emitted() const { return emit; } 
 };
